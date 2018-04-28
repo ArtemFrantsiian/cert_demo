@@ -1,0 +1,35 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon --watch src --exec babel-node -- src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "babel-polyfill": "^6.26.0",
+    "body-parser": "^1.18.2",
+    "cors": "^2.8.4",
+    "express": "^4.16.3",
+    "lodash": "^4.17.5",
+    "moment": "^2.22.1",
+    "node-forge": "^0.7.5",
+    "qrcode": "^1.2.0",
+    "request": "^2.85.0",
+    "speakeasy": "^2.0.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "nodemon": "^1.17.3"
+  },
+  "babel": {
+    "presets": [
+      "env"
+    ]
+  }
+}

@@ -1,0 +1,30 @@
+$center-margin: 0 auto;
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+#root,
+.App {
+  height: 100%;
+}
+
+.in_center {
+  justify-content: center;
+}
+
+.section {
+  margin: 50px 0;
+}
+
+.holder {
+  margin: $center-margin;
+  padding: 0 10px;
+  max-width: 1120px;
+  position: relative;
+}
+
+.tac {
+  text-align: center;
+}

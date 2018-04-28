@@ -1,0 +1,14 @@
+Client: 
+	Preset:
+		npx create-react-app name
+		cd name
+		npm run eject
+
+	Setting:
+		npm i --save react-router react-router-dom redux redux-thunk react-redux prop-types antd axios babel-plugin-import lodash classnames pkijs
+		npm i --save-dev sass-loader node-sass less-loader
+
+Backend:
+	Preset:
+		npm i --save express request lodash body-parser babel-polyfill
+		npm i --save-dev nodemon babel-cli babel-preset-env
