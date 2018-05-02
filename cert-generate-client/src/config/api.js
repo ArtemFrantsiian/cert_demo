@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { message } from 'antd';
 
-import { certificateUrl, google2FAUrl } from "./index";
+import { host, certificateUrl, google2FAUrl } from "./index";
 
 const serverRequest = config => async ({ data = false, params = false } = { data: false, params: false }) => {
   const r = await axios({
@@ -36,7 +36,15 @@ const google2FA = {
   })
 };
 
+const auth = {
+  logout: serverRequest({
+    method: 'DELETE',
+    url: host
+  })
+};
+
 export default {
   ...certificate,
-  ...google2FA
+  ...google2FA,
+  ...auth
 }

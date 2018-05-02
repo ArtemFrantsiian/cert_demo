@@ -1,11 +1,14 @@
 import express from 'express';
 import request from 'request';
+import redis from 'redis';
 import { pki } from 'node-forge';
 
 import { createCertificateUrl, certificateUrl } from "../config";
-import { fromBase64ToPem, verifySecret } from "../functions";
+import { fromBase64ToPem, verifySecret, getCollection } from "../functions";
 
 const router = express.Router();
+const session = redis.createClient();
+const getFromSession = promisify(session.get).bind(session);
 
 /**
  * for create certificate
@@ -22,17 +25,22 @@ router.put('/', (req, res) => {
         certificate: csr
       },
       json: true,
-    }, (error, response, body) => {
+    }, async (error, response, body) => {
+      if (error) {
+        console.log(e);
+        return;
+      }
       const { certificate } = body;
-      // store.hset(userId, "certificate", certificate);
       const certReq = pki.certificationRequestFromPem(csr);
-      console.log(certReq.publicKey);
+      const { publicKey } = certReq;
+      const store = await getCollection("certificates");
+      await store.insertOne({
+        publicKey,
+        secret
+      });
       res.json({
         certificate
       })
-    })
-    .on("error", e => {
-      console.log(e);
     });
 });
 
@@ -40,9 +48,9 @@ router.put('/', (req, res) => {
  * for revoke certificate
  */
 router.delete('/', (req, res) => {
-  const certificate = fromBase64ToPem(req.body.certificate);
-  request
-    .delete(certificateUrl, {
+  const { userId } = req.body;
+  const certificate = getFromSession(userId);
+  request.delete(certificateUrl, {
       body: {
         certificate
       },
@@ -51,7 +59,7 @@ router.delete('/', (req, res) => {
     .on('error', function(err) {
       console.log(err);
     })
-    .pipe(res);
+    .pipe(request.delete('http://localhost:8000'));
 });
 
 export default router;

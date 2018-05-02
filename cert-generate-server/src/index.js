@@ -1,7 +1,5 @@
 import express from "express";
 import bodyParser from "body-parser";
-import https from 'https';
-import fs from 'fs';
 import cors from 'cors';
 
 import { home, certificate, google2FA } from "./routes";

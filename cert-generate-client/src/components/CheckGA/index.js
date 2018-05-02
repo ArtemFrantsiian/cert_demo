@@ -28,8 +28,7 @@ class CheckGA extends Component {
     };
     await api.verify2FA({ data });
     this.toggleLoading();
-    const { name, login, certificate } = this.props;
-    localStorage.setItem('token', certificate);
+    const { name, login } = this.props;
     localStorage.setItem('name', name);
     login({ name, certificate });
     message.success('You logged in successfully', 1, () => {
@@ -48,7 +47,7 @@ class CheckGA extends Component {
     const { value, isLoading } = this.state;
     return(
       <div className="checkGA tac">
-        <div>Hi {name}</div>
+        <div>Hi { name }</div>
         <div>Please enter Google Authenticator</div>
         <Input
           className="checkGA__input"

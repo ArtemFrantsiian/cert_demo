@@ -10,7 +10,7 @@ class Revoke extends Component {
     e.preventDefault();
     const { logout } = this.props;
     const data = {
-      certificate: localStorage.getItem('token')
+      userId: localStorage.getItem('userId')
     };
     await api.revokeCertificate({ data });
     message.success('Your certificate was revoked successfully. You will be redirected to login page', 2, () => {

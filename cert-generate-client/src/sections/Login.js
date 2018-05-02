@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 import { Button, Icon, message } from 'antd';
 
-import { host, hostRequestCert } from "../config";
+import { hostRequestCert } from "../config";
 import { CheckGA } from "../components";
 
 class Login extends Component {
@@ -10,27 +10,33 @@ class Login extends Component {
     super(props);
     let isOk = 'start';
     let name = "";
+    let userId = "";
     const query = window.location.href.split('?');
     if (query.length >= 2){
       isOk = (query[1].split("&")[0].split('=')[1] === "true");
       name = query[1].split("&")[1].split('=')[1];
+      userId = query[1].split("&")[2].split('=')[1];
     }
     this.state = {
       redirect: false,
       isOk,
       name,
+      userId
     };
     window.history.pushState('', '', window.location.href.split('?')[0]);
   }
 
   componentDidMount() {
-    const { isOk} = this.state;
+    const { isOk, userId } = this.state;
     if (isOk === 'start') {
       return;
     }
     if (!isOk) {
       message.error('You have not a valid certificate, please go to Register Page and create new one', 2);
       return;
+    }
+    if (userId) {
+      localStorage.setItem('userId', userId);
     }
   }
 

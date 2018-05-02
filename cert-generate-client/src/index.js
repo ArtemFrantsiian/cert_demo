@@ -15,11 +15,10 @@ const store = createStore(
   applyMiddleware(thunk)
 );
 
-let token = localStorage.token;
+let userId = localStorage.userId;
 let name = localStorage.name;
-let secret = localStorage.secret;
-if (token) {
-  store.dispatch(login({ certificate: token, name: name, secret }));
+if (userId) {
+  store.dispatch(login({ userId, name }));
 }
 
 render(

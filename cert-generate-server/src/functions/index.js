@@ -1,9 +1,10 @@
 import { fromBase64ToPem } from "./pem";
 import { verifySecret } from "./2fa";
-import { getCollection } from "./store";
+import { getCollection, getUserId } from "./store";
 
 export {
   fromBase64ToPem,
   verifySecret,
-  getCollection
+  getCollection,
+  getUserId
 }

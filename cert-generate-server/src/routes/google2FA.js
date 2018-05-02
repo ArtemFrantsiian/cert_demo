@@ -1,19 +1,19 @@
 import express from 'express';
-import {verifySecret} from "../functions";
+import redis from 'redis';
+
+import { verifySecret , getCollection } from "../functions";
+
+const session = redis.createClient();
+const getFromSession = promisify(session.get).bind(session);
 
 const router = express.Router();
 
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   const {userId, token} = req.body;
 
-  const secret = userId;
-  // store.hget(userId, "secret", (err, secret) => {
-  //   if (err) {
-  //     res.status(404).json({success: false});
-  //   }
-  //   const success = verifySecret(secret, token);
-  //   res.status(200).json({ success });
-  // })
+  const store = await getCollection("certificates");
+  const publicKey = await getFromSession(userId);
+  const secret = await store.findOne({ publicKey }, { secret: 1 });
 
   res.status(200).json({ success: verifySecret(secret, token) });
 });
