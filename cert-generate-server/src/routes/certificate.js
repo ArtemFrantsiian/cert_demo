@@ -1,9 +1,9 @@
 import express from 'express';
 import request from 'request';
+import { pki } from 'node-forge';
 
 import { createCertificateUrl, certificateUrl } from "../config";
 import { fromBase64ToPem, verifySecret } from "../functions";
-
 
 const router = express.Router();
 
@@ -11,24 +11,29 @@ const router = express.Router();
  * for create certificate
  */
 router.put('/', (req, res) => {
-  const { certificate, token, secret } = req.body;
+  const { csr, token, secret } = req.body;
   if(!verifySecret(secret, token)){
     console.log("Google Authenticatior was not confirmed");
-    // res.status(400).json({ qrcode: false });
-    // return;
+    res.status(400).json({ qrcode: false });
+    return;
   }
-  //TODO store certificate, and 2FA secret in persistent storage
-  request
-    .put(createCertificateUrl, {
+  request.put(createCertificateUrl, {
       body: {
-        certificate
+        certificate: csr
       },
       json: true,
+    }, (error, response, body) => {
+      const { certificate } = body;
+      // store.hset(userId, "certificate", certificate);
+      const certReq = pki.certificationRequestFromPem(csr);
+      console.log(certReq.publicKey);
+      res.json({
+        certificate
+      })
     })
-    .on('error', function(err) {
-      console.log(err);
-    })
-    .pipe(res);
+    .on("error", e => {
+      console.log(e);
+    });
 });
 
 /**

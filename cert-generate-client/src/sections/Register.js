@@ -60,15 +60,16 @@ class Register extends Component {
     const {csr, privateKey, passphrase} = this.state;
 
     const data = {
-      certificate: csr,
+      csr,
       secret: googleSecret,
       token: userInput
     };
     console.log(data);
 
     // create certificate on the server
-    const { certificate } = await api.createCertificate({ data });
+    const { userId, certificate } = await api.createCertificate({ data });
 
+    localStorage.setItem('userId', userId);
     // create p12 file
     const p12 = createP12({ privateKey, certificate, passphrase });
 

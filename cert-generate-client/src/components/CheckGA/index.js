@@ -23,7 +23,7 @@ class CheckGA extends Component {
     e.preventDefault();
     this.toggleLoading();
     const data = {
-      userId: localStorage.getItem('secret'),
+      userId: localStorage.getItem('userId'),
       token: this.state.value,
     };
     await api.verify2FA({ data });

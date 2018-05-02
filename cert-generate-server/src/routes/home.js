@@ -2,6 +2,7 @@ import express from 'express';
 import { asn1, pki, util } from "node-forge";
 import request from "request";
 import moment from 'moment';
+
 import { certificateUrl } from "../config";
 import { fromBase64ToPem } from "../functions";
 
@@ -15,6 +16,7 @@ router.get("/", (req, res) => {
   if (isOk && cert.valid_to) {
     const base64 = cert.raw.toString('base64');
     const certificate = fromBase64ToPem(base64);
+    const cert = pki.certificateFromPem(certificate);
     request.post(certificateUrl, {
       body: {
         certificate
@@ -22,18 +24,18 @@ router.get("/", (req, res) => {
       json: true,
     }, function (error, response, body) {
       if (error || response.statusCode !== 200) {
-        res.redirect(`${backURL}?isOk=false&name=false&cert=false`);
+        res.redirect(`${backURL}?isOk=false&name=false`);
         return;
       }
       if (body.revoked) {
-        res.redirect(`${backURL}?isOk=false&name=false&cert=false`);
+        res.redirect(`${backURL}?isOk=false&name=false`);
         return;
       }
-      res.redirect(`${backURL}?isOk=${isOk}&name=${cert.subject.CN.split(" ")[0]}&cert=${base64}`);
+      res.redirect(`${backURL}?isOk=${isOk}&name=${cert.subject.CN.split(" ")[0]}`);
     });
   } else {
     console.log("isNotOk");
-    res.redirect(`${backURL}?isOk=false&name=false&cert=false`);
+    res.redirect(`${backURL}?isOk=false&name=false`);
   }
 });
 
