@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 import { Button, Icon, message } from 'antd';
 
-import { host } from "../config";
+import { host, hostRequestCert } from "../config";
 import { CheckGA } from "../components";
 
 class Login extends Component {
@@ -36,7 +36,7 @@ class Login extends Component {
 
   onClick = async e => {
     e.preventDefault();
-    window.location.href = host;
+    window.location.href = hostRequestCert;
   };
 
   render() {

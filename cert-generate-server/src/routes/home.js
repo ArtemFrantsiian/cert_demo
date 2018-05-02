@@ -2,21 +2,17 @@ import express from 'express';
 import { asn1, pki, util } from "node-forge";
 import request from "request";
 import moment from 'moment';
-
 import { certificateUrl } from "../config";
 import { fromBase64ToPem } from "../functions";
 
 const router = express.Router();
 
 router.get("/", (req, res) => {
+  var certificate = decodeURIComponent(req.get('X-SSL-Client-Cert'));
+  const cert = pki.certificateFromPem(certificate);
   const backURL = req.header('Referer') || '/';
-  const cert = req.connection.getPeerCertificate();
-  console.log(cert);
   const isOk = moment().isSameOrBefore(cert.valid_to);
   if (isOk && cert.valid_to) {
-    const base64 = cert.raw.toString('base64');
-    const certificate = fromBase64ToPem(base64);
-    const cert = pki.certificateFromPem(certificate);
     request.post(certificateUrl, {
       body: {
         certificate
