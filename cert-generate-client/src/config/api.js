@@ -1,19 +1,18 @@
 import axios from 'axios';
-import { message } from 'antd';
 
 import { host, certificateUrl, google2FAUrl } from "./index";
 
 const serverRequest = config => async ({ data = false, params = false } = { data: false, params: false }) => {
-  const r = await axios({
-    ...config,
-    data: data || undefined,
-    params: params || undefined,
-  });
-  if (!r) {
-    message.error('Something occurs on the server. Please repeat your request');
-    throw new Error();
+  try {
+    const r = await axios({
+      ...config,
+      data: data || undefined,
+      params: params || undefined,
+    });
+    return r.data;
+  } catch (e) {
+    return e.response.data;
   }
-  return r.data;
 };
 
 const certificate = {

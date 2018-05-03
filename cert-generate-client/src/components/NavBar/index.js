@@ -14,9 +14,9 @@ import { logout } from "../../actions";
 class NavBar extends Component {
   revoke = async e => {
     e.preventDefault();
-    const { logout } = this.props;
+    const { userId, logout } = this.props;
     const data = {
-      certificate: localStorage.getItem('token')
+      userId
     };
     await api.revokeCertificate({ data });
     message.success('Your certificate was revoked successfully. You will be redirected to login page', 2, () => {
@@ -73,12 +73,11 @@ NavBar.propTypes = {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function mapStateToProps(state) {
-  return {
-    isLoggedIn: state.auth.isLoggedIn,
-    name: state.auth.name
-  }
-}
+const mapStateToProps = state => ({
+  isLoggedIn: state.auth.isLoggedIn,
+  userId: state.auth.userId,
+  name: state.auth.name
+});
 
 //----------------------------------------------------------------------------------------------------------------------
 

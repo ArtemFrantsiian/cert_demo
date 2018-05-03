@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
-import { rsa, pki, pkcs12, asn1, util } from 'node-forge';
 import { message } from 'antd';
 import { Link } from "react-router-dom";
 
-import { CreateForm, Steps, Login, QRcode } from '../components';
+import { CreateForm, Steps, QRcode } from '../components';
 import { register } from '../schemes';
 import api from "../config/api";
 import {createKeys, createCSR, createLink, createP12} from "../functions";
@@ -14,11 +13,6 @@ class Register extends Component {
     csr: "",
     passphrase: "",
     privateKey: ""
-  };
-
-  validPassPhrase = {
-    length: 10,
-    pattern: /^[a-zA-Z0-9 ]*$/
   };
 
   formItemLayout = {
@@ -64,10 +58,14 @@ class Register extends Component {
       secret: googleSecret,
       token: userInput
     };
-    console.log(data);
 
     // create certificate on the server
-    const { certificate } = await api.createCertificate({ data });
+    const { certificate, notValid } = await api.createCertificate({ data });
+
+    if (notValid) {
+      message.error('Your key does not correspond');
+      return;
+    }
 
     // create p12 file
     const p12 = createP12({ privateKey, certificate, passphrase });
@@ -81,12 +79,6 @@ class Register extends Component {
     this.setState(prevState => ({ step: prevState.step + 1 }))
   };
 
-  passPhrase = (item, value, callback) => {
-    if (value && (!new RegExp(this.validPassPhrase.pattern).test(value) || value.length < this.validPassPhrase.length)) {
-      callback(`Passphrase must have at least ${this.validPassPhrase.length} characters and only numbers and letters are allowed`);
-    }
-    callback();
-  };
 
   compareToFirstPassPhrase = (item, value, callback) => {
     if (value && value !== this.form.getFieldValue('passphrase')) {
@@ -97,7 +89,7 @@ class Register extends Component {
 
   render() {
     const { step } = this.state;
-    const scheme = register({ passPhrase: this.passPhrase, compareToFirstPassPhrase: this.compareToFirstPassPhrase });
+    const scheme = register({ compareToFirstPassPhrase: this.compareToFirstPassPhrase });
 
     return (
       <section className="section">

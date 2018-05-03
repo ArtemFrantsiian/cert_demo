@@ -1,7 +1,5 @@
 import React, { Component } from "react";
 import { Form, Button } from 'antd';
-import QRCode from 'qrcode';
-import speakeasy from 'speakeasy';
 
 import components from '../inputs';
 

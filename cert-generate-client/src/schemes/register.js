@@ -6,7 +6,8 @@ export const register = ({ passPhrase, compareToFirstPassPhrase }) => [
     required: true,
     message: 'Please input your email',
     rules: {
-      type: 'email', message: 'The input is not valid E-mail!',
+      type: 'email',
+      message: 'The input is not valid E-mail!',
     },
   },{
     name: 'firstName',
@@ -14,12 +15,20 @@ export const register = ({ passPhrase, compareToFirstPassPhrase }) => [
     type: 'String',
     required: true,
     message: 'Please input your First Name',
+    rules: {
+      pattern: /^[a-zA-Z]*$/,
+      message: 'Only latin symbols are allowed',
+    },
   },{
     name: 'lastName',
     label: 'Last Name',
     type: 'String',
     required: true,
     message: 'Please input your Last Name',
+    rules: {
+      pattern: /^[a-zA-Z]*$/,
+      message: 'Only latin symbols are allowed',
+    },
   },{
     name: 'passphrase',
     label: 'Passphrase',
@@ -30,8 +39,10 @@ export const register = ({ passPhrase, compareToFirstPassPhrase }) => [
       type: "password",
     },
     rules: {
-      validator: passPhrase
-    }
+      min: 10,
+      pattern: /^[a-zA-Z0-9]*$/,
+      message: 'Passphrase must have at least 10 characters and only numbers and letters are allowed',
+    },
   },{
     name: 'confirmPassphrase',
     label: 'Confirm Passphrase',

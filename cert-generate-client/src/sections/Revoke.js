@@ -8,9 +8,9 @@ import api from '../config/api';
 class Revoke extends Component {
   revoke = async e => {
     e.preventDefault();
-    const { logout } = this.props;
+    const { userId, logout } = this.props;
     const data = {
-      userId: localStorage.getItem('userId')
+      userId
     };
     await api.revokeCertificate({ data });
     message.success('Your certificate was revoked successfully. You will be redirected to login page', 2, () => {
@@ -32,5 +32,8 @@ class Revoke extends Component {
   }
 }
 
+const mapStateToProps = state => ({
+  userId: state.auth.userId
+});
 
-export default connect(null, { logout })(Revoke);
+export default connect(mapStateToProps, { logout })(Revoke);

@@ -1,3 +1,5 @@
+import jwt from 'jsonwebtoken';
+
 import api from "../config/api";
 import { LOGIN, LOGOUT } from "../types";
 
@@ -9,13 +11,13 @@ export const login = data => dispatch => {
 };
 
 export const logout = () => async dispatch => {
-  const userId = localStorage.getItem('userId');
+  const token = localStorage.getItem("token");
+  const { userId } = jwt.decode(token);
   const data = {
     userId
   };
   await api.logout({ data });
-  localStorage.removeItem('userId');
-  localStorage.removeItem('name');
+  localStorage.removeItem('token');
   dispatch({
     type: LOGOUT
   })

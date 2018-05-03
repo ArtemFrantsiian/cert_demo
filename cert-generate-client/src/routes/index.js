@@ -6,7 +6,6 @@ import {
   Home,
   Register,
   Login,
-  Revoke,
   NotFound
 } from '../sections'
 import PrivateRouter from './PrivateRoute';

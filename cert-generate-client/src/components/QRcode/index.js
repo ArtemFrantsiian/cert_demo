@@ -1,7 +1,8 @@
 import React, { Component } from "react";
-import { Input, Button, message } from 'antd';
+import { Input, Button } from 'antd';
 import QRCode from 'qrcode';
 import speakeasy from 'speakeasy';
+import cn from "classnames";
 
 import './style.scss';
 
@@ -17,7 +18,6 @@ class QRcode extends Component {
   async componentDidMount() {
     const secret = speakeasy.generateSecret({name: 'REMME'});
     const data = await QRCode.toDataURL(secret.otpauth_url);
-    console.log(data);
     this.setState({
       imageUrl: data,
       secret: secret
@@ -30,20 +30,38 @@ class QRcode extends Component {
     }))
   };
 
+  validQrCode = {
+    length: 6,
+    pattern: /^[0-9]*$/
+  };
+
   onChange = e => {
-    this.setState({
-      value: e.target.value,
-    })
+    const { value } = e.target;
+    if (value && (!new RegExp(this.validQrCode.pattern).test(value) || value.length !== this.validQrCode.length)) {
+      this.setState({
+        error: "Code must be 6 symbols and only numeric",
+        isLoading: true,
+        value,
+      });
+    } else {
+      this.setState({
+        error: "",
+        isLoading: false,
+        value,
+      })
+    }
   };
 
   onClick = e => {
     e.preventDefault();
     this.toggleLoading();
     const { secret, value } = this.state;
-    // if (!verifySecret(secret, value)) {
-    //   message.error('Your value do not match with qr code');
-    //   return;
-    // }
+    if (!value) {
+      this.setState({
+        error: "Code must be 6 symbols and only numeric",
+      });
+      return;
+    }
     const { onSubmit } = this.props;
     onSubmit(secret, value);
     this.toggleLoading();
@@ -51,26 +69,26 @@ class QRcode extends Component {
 
   render() {
     const { buttonName } = this.props;
-    const { imageUrl, secret, value, isLoading } = this.state;
-    console.log(secret, value);
+    const { imageUrl, value, isLoading, error } = this.state;
     return (
       <div className="qr">
         <div className="qr__check">
-          {imageUrl && <img className="qr__code" src={imageUrl} />}
-          <div className="qr__verify">
+          {imageUrl && <img className="qr__code" src={imageUrl} alt="qrcode" />}
+          <div className={cn("qr__verify", { "has-error": error })}>
             <div className="qr__label">QR code</div>
             <Input
               className="qr__input"
               value={value}
               onChange={this.onChange}
             />
+            {error && <div className="ant-form-explain">{error}</div>}
           </div>
         </div>
         <Button
           type="primary"
           onClick={this.onClick}
           className="qr__button"
-          loading={isLoading}
+          loading={isLoading && !error}
           disabled={isLoading}
         >
           { buttonName }

@@ -3,6 +3,7 @@ import { render } from "react-dom";
 import { Provider } from "react-redux";
 import thunk from "redux-thunk";
 import { createStore, applyMiddleware } from "redux";
+import jwt from "jsonwebtoken";
 
 import rootReducer from "./reducers";
 import Routes from "./routes";
@@ -15,10 +16,12 @@ const store = createStore(
   applyMiddleware(thunk)
 );
 
-let userId = localStorage.userId;
-let name = localStorage.name;
-if (userId) {
-  store.dispatch(login({ userId, name }));
+const token = localStorage.getItem("token");
+if (token) {
+  const { userId, name } = jwt.decode(token);
+  if (userId && name) {
+    store.dispatch(login({ userId, name }));
+  }
 }
 
 render(
@@ -27,4 +30,5 @@ render(
   </Provider>,
   document.getElementById("root")
 );
+
 registerServiceWorker();

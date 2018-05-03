@@ -17,8 +17,7 @@ const getFromSession = promisify(session.get).bind(session);
 router.put('/', (req, res) => {
   const { csr, token, secret } = req.body;
   if(!verifySecret(secret, token)){
-    console.log("Google Authenticatior was not confirmed");
-    res.status(400).json({ qrcode: false });
+    res.status(400).json({ notValid: true });
     return;
   }
   request.put(createCertificateUrl, {
