@@ -2,6 +2,7 @@ import express from 'express';
 import request from 'request';
 import redis from 'redis';
 import { pki } from 'node-forge';
+import { promisify } from 'util';
 
 import { createCertificateUrl, certificateUrl } from "../config";
 import { fromBase64ToPem, verifySecret, getCollection } from "../functions";

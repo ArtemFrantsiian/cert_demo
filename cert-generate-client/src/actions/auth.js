@@ -1,4 +1,4 @@
-import api from "../config";
+import api from "../config/api";
 import { LOGIN, LOGOUT } from "../types";
 
 export const login = data => dispatch => {

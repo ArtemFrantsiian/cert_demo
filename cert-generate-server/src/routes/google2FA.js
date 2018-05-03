@@ -1,5 +1,6 @@
 import express from 'express';
 import redis from 'redis';
+import { promisify } from 'util';
 
 import { verifySecret , getCollection } from "../functions";
 

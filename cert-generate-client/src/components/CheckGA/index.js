@@ -22,15 +22,16 @@ class CheckGA extends Component {
   onClick = async e => {
     e.preventDefault();
     this.toggleLoading();
+    const userId = localStorage.getItem('userId');
     const data = {
-      userId: localStorage.getItem('userId'),
+      userId,
       token: this.state.value,
     };
     await api.verify2FA({ data });
     this.toggleLoading();
     const { name, login } = this.props;
     localStorage.setItem('name', name);
-    login({ name, certificate });
+    login({ userId, name });
     message.success('You logged in successfully', 1, () => {
       this.props.history.push('/');
     });
