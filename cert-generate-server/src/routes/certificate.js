@@ -32,11 +32,9 @@ router.put('/', (req, res) => {
         return;
       }
       const { certificate } = body;
-      const certReq = pki.certificationRequestFromPem(csr);
-      const { publicKey } = certReq;
       const store = await getCollection("certificates");
       await store.insertOne({
-        publicKey,
+        certificate,
         secret
       });
       res.json({
