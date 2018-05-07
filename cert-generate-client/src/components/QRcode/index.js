@@ -5,6 +5,7 @@ import speakeasy from 'speakeasy';
 import cn from "classnames";
 
 import './style.scss';
+import { GoogleAuthLogo } from '../index';
 
 class QRcode extends Component {
   state = {
@@ -72,6 +73,7 @@ class QRcode extends Component {
     const { imageUrl, value, isLoading, error } = this.state;
     return (
       <div className="qr">
+        <GoogleAuthLogo />
         <div className="qr__check">
           {imageUrl && <img className="qr__code" src={imageUrl} alt="qrcode" />}
           <div className={cn("qr__verify", { "has-error": error })}>
@@ -80,6 +82,7 @@ class QRcode extends Component {
               className="qr__input"
               value={value}
               onChange={this.onChange}
+              onKeyPress={e => e.key === "Enter" ? this.onClick(e) : null}
             />
             {error && <div className="ant-form-explain">{error}</div>}
           </div>
