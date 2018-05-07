@@ -9,7 +9,7 @@ import {createKeys, createCSR, createLink, createP12} from "../functions";
 
 class Register extends Component {
   state = {
-    step: 1,
+    step: 0,
     csr: "",
     passphrase: "",
     privateKey: ""
