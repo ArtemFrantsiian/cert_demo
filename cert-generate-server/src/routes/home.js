@@ -12,12 +12,21 @@ const session = redis.createClient();
 
 router.get("/", (req, res) => {
   const certificate = decodeURIComponent(req.get('X-SSL-Client-Cert'));
-  const cert = pki.certificateFromPem(certificate);
+  let validFormat = true;
+  let cert = null;
+  try
+  {
+    cert = pki.certificateFromPem(certificate);
+  } catch(err)
+  {
+    console.log(err);
+    validFormat = false;
+  }
   const backURL = req.header('Referer') || 'http://localhost/login';
-  const isOk = moment().isSameOrBefore(cert.validity.notAfter);
-  const userId = getUserId();
-  session.set(userId, certificate);
+  const isOk = validFormat && cert && moment().isSameOrBefore(cert.validity.notAfter);
   if (isOk) {
+    const userId = getUserId();
+    session.set(userId, certificate);
     request.post(certificateUrl, {
       body: {
         certificate

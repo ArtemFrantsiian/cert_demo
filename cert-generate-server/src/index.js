@@ -5,8 +5,8 @@ import cors from 'cors';
 import { home, certificate, google2FA } from "./routes";
 
 const corsOptions = {
-  // origin: 'https://cert-generate-client.herokuapp.com',
-  origin: '*',
+  origin: 'https://webauth.remme.io/register',
+  //origin: '*',
   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
 

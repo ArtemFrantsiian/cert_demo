@@ -30,7 +30,7 @@ class CheckGA extends Component {
 
   onChange = e => {
     const { value } = e.target;
-    if (value && (!new RegExp(this.validQrCode.pattern).test(value) || value.length === this.validQrCode.length)) {
+    if (value && (!new RegExp(this.validQrCode.pattern).test(value) || value.length !== this.validQrCode.length)) {
       this.setState({
         error: "Code must be 6 symbols and only numeric",
         isLoading: true,

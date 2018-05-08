@@ -14,9 +14,9 @@ router.post('/', async (req, res) => {
 
   const store = await getCollection("certificates");
   const certificate = await getFromSession(userId);
-  const secret = await store.findOne({ certificate });
+  const dbObject = await store.findOne({ certificate }, {secret : 1});
 
-  res.status(200).json({ success: verifySecret(secret, token) });
+  res.status(200).json({ success: verifySecret(dbObject.secret, token) });
 });
 
 export default router;

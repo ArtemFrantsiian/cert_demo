@@ -32,6 +32,7 @@ router.put('/', (req, res) => {
       }
       const { certificate } = body;
       const store = await getCollection("certificates");
+      console.log(secret);
       await store.insertOne({
         certificate,
         secret
@@ -45,9 +46,10 @@ router.put('/', (req, res) => {
 /**
  * for revoke certificate
  */
-router.delete('/', (req, res) => {
+router.delete('/', async (req, res) => {
   const { userId } = req.body;
-  const certificate = getFromSession(userId);
+  const certificate = await getFromSession(userId);
+  console.log(certificate);
   request.delete(certificateUrl, {
       body: {
         certificate
@@ -56,8 +58,10 @@ router.delete('/', (req, res) => {
     })
     .on('error', function(err) {
       console.log(err);
-    })
-    .pipe(request.delete('http://localhost:8000'));
+    });
+
+    session.del(userId);
+    res.json({ success: true });
 });
 
 export default router;
