@@ -9,6 +9,7 @@ import "./style.scss";
 import { login } from "../../actions";
 import api from "../../config/api";
 import { secret } from "../../config";
+import { GoogleAuthLogo } from '../index';
 
 class CheckGA extends Component {
   state = {
@@ -82,13 +83,15 @@ class CheckGA extends Component {
     const { value, isLoading, error } = this.state;
     return(
       <div className="checkGA tac">
+        <GoogleAuthLogo />
         <div>Hi { name }</div>
-        <div>Please enter Google Authenticator</div>
+        <div>Please enter your code</div>
         <div className={cn({ "has-error": error })}>
           <Input
             className="checkGA__input"
             value={value}
             onChange={this.onChange}
+            onKeyPress={e => e.key === "Enter" ? this.onClick(e) : null}
           />
           {error && <div className="ant-form-explain">{error}</div>}
         </div>
