@@ -60,7 +60,7 @@ class Login extends Component {
         <div className="section">
           <div className="holder tac">
             {
-              isOk && isOk !== "start" ? <CheckGA name={name} /> : (
+              isOk && isOk !== "start" ? <CheckGA name={name} buttonName='Confirm' /> : (
                 <Button onClick={this.onClick}>
                   <Icon type="upload" /> Login with certificate
                 </Button>

@@ -3,7 +3,7 @@ import CreateForm from './CreateForm';
 import Steps from './Steps';
 import QRcode from './QRcode';
 import CheckGA from './CheckGA';
-import GoogleAuthLogo from './GoogleAuthLogo';
+import GoogleAuth from './GoogleAuth';
 
 export {
   NavBar,
@@ -11,6 +11,5 @@ export {
   Steps,
   QRcode,
   CheckGA,
-  GoogleAuthLogo,
+  GoogleAuth
 };
-

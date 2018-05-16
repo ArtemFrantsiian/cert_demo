@@ -102,13 +102,13 @@ class Register extends Component {
                 layout={{ items: this.formItemLayout }}
                 onSubmit={this.onRegister}
                 scheme={scheme}
-                buttonName="Ok"
+                buttonName="Create User"
                 className="form"
                 ref={form => this.form = form}
               />,
               <QRcode
                 onSubmit={this.onQRcode}
-                buttonName="Ok"
+                buttonName="Confirm"
               />,
               <div>
                 <div>Your certificate was registered successfully</div>
