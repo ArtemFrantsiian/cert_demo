@@ -1,17 +1,23 @@
-.qr__check {
+.ga__check {
   display: flex;
   max-width: 50%;
   margin: 0 auto;
+  -ms-flex-align: center;
+  align-items: center;
 }
-.qr__code {
+.ga__code {
   margin-right: 20px;
 }
-.qr__verify {
+.ga__verify {
   width: 70%;
-  height: 72px;
-  margin: 30px auto;
+  height: auto;
+  margin: 0px auto 0;
 }
 
-.qr__input {
-  margin: 20px 0;
+.ga__verify button {
+  margin-top: 8px;
+}
+
+.ga__input {
+  margin: 15px 0 10px;
 }

@@ -2,25 +2,14 @@ import React, { Component } from "react";
 import QRCode from 'qrcode';
 import speakeasy from 'speakeasy';
 
-import { GoogleAuthForm } from '../GoogleAuth';
+import { GoogleAuthForm, GoogleAuthLogo } from '../GoogleAuth';
 
 class QRcode extends Component {
 
-  constructor(props) {
-     super(props)
-
-     this.state = {
-       imageUrl: "",
-       secret: "",
-       value: "",
-       error: "",
-       isLoading: false
-     };
- }
-
- newState = data => {
-   this.setState(data);
- }
+  state = {
+   imageUrl: "",
+   secret: ""
+  };
 
   async componentDidMount() {
     const secret = speakeasy.generateSecret({name: 'REMME'});
@@ -31,24 +20,26 @@ class QRcode extends Component {
     })
   }
 
-  onSuccess = () => {
-    const { secret, value } = this.state;
+  onSuccess = (value) => {
+    const { secret } = this.state;
     const { onSubmit } = this.props;
     onSubmit(secret, value);
   }
 
   render() {
+    const {imageUrl} = this.state;
     return (
-    <GoogleAuthForm
-      name={this.props.name}
-      buttonName={this.props.buttonName}
-      imageUrl={this.state.imageUrl}
-      value={this.state.value}
-      isLoading={this.state.isLoading}
-      error={this.state.error}
-      newState={this.newState}
-      onSuccess={this.onSuccess}
-    />
+    <div className="google-auth">
+      <GoogleAuthLogo />
+
+      <div className="ga__check">
+        {imageUrl && <img className="ga__code" src={imageUrl} alt="qrcode" />}
+        <GoogleAuthForm
+          buttonName={this.props.buttonName}
+          onSuccess={this.onSuccess}
+        />
+      </div>
+    </div>
     )
   }
 }

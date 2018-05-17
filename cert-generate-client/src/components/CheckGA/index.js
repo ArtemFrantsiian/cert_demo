@@ -8,27 +8,17 @@ import { login } from "../../actions";
 import api from "../../config/api";
 import { secret } from "../../config";
 
-import { GoogleAuthForm } from '../GoogleAuth';
+import { GoogleAuthForm, GoogleAuthLogo } from '../GoogleAuth';
 
 class CheckGA extends Component {
 
-  constructor(props) {
-     super(props)
-     this.state = {
-       isLoading: false,
-       value: "",
-       error: ""
-     };
- }
+  state = {
+    isLoading: false,
+  };
 
- newState = data => {
-   this.setState(data);
- }
 
- onSuccess = async () => {
-   const { value } = this.state;
+ onSuccess = async (value) => {
    const userId = localStorage.getItem('userId');
-
    const data = {
      userId,
      token: value,
@@ -51,16 +41,20 @@ class CheckGA extends Component {
  }
 
   render() {
+    const { name } = this.props;
     return (
-    <GoogleAuthForm
-      name={this.props.name}
-      buttonName={this.props.buttonName}
-      value={this.state.value}
-      isLoading={this.state.isLoading}
-      error={this.state.error}
-      newState={this.newState}
-      onSuccess={this.onSuccess}
-    />
+      <div className="google-auth">
+        <GoogleAuthLogo />
+        {name && <div>Hi { name }!</div>}
+
+        <div className="ga__check">
+          <GoogleAuthForm
+            buttonName={this.props.buttonName}
+            isLoading={this.state.isLoading}
+            onSuccess={this.onSuccess}
+          />
+        </div>
+      </div>
     )
   }
 }

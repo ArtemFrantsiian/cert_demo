@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { GoogleAuthLogo } from './';
 
 import './style.scss';
 
@@ -7,6 +6,12 @@ import cn from "classnames";
 import { Input, Button } from 'antd';
 
 class GoogleAuthForm extends Component {
+
+  state = {
+    value: "",
+    error: "",
+    isLoading: this.props.isLoading
+  };
 
   validQrCode = {
     length: 6,
@@ -16,14 +21,14 @@ class GoogleAuthForm extends Component {
   onChange = e => {
     const { value } = e.target;
     if (value && (!new RegExp(this.validQrCode.pattern).test(value) || value.length !== this.validQrCode.length)) {
-      this.props.newState({
+      this.setState({
         error: "Code must be 6 symbols and only numeric",
         isLoading: true,
         value,
       })
 
     } else {
-      this.props.newState({
+      this.setState({
         error: "",
         isLoading: false,
         value,
@@ -32,7 +37,7 @@ class GoogleAuthForm extends Component {
   };
 
   toggleLoading = () => {
-    this.props.newState({
+    this.setState({
       isLoading: !this.props.isLoading,
     })
   };
@@ -48,36 +53,32 @@ class GoogleAuthForm extends Component {
       });
       return;
     }
-    this.props.onSuccess();
+    this.props.onSuccess(value);
     this.toggleLoading();
   };
 
   render() {
-    const { name, buttonName, imageUrl, value, isLoading, error } = this.props;
+    const { buttonName } = this.props;
+    const { value, error, isLoading } = this.state
     return (
-      <div className="google-auth-form">
-        <GoogleAuthLogo userName={name} />
-        <div className="qr__check">
-          {imageUrl && <img className="qr__code" src={imageUrl} alt="qrcode" />}
-          <div className={cn("qr__verify", { "has-error": error })}>
-            <div>Please enter code:</div>
-            <Input
-              className="qr__input"
-              value={value}
-              onChange={this.onChange}
-              onKeyPress={e => e.key === "Enter" ? this.onClick(e) : null}
-            />
-            {error && <div className="ant-form-explain">{error}</div>}
-            <Button
-              type="primary"
-              onClick={this.onClick}
-              loading={isLoading && !error}
-              disabled={isLoading}
-            >
-              { buttonName }
-            </Button>
-          </div>
-        </div>
+
+        <div className={cn("ga__verify", { "has-error": error })}>
+          <div>Please enter code:</div>
+          <Input
+            className="ga__input"
+            value={value}
+            onChange={this.onChange}
+            onKeyPress={e => e.key === "Enter" ? this.onClick(e) : null}
+          />
+          {error && <div className="ant-form-explain">{error}</div>}
+          <Button
+            type="primary"
+            onClick={this.onClick}
+            loading={isLoading && !error}
+            disabled={isLoading}
+          >
+            { buttonName }
+          </Button>
       </div>
     )
   }
