@@ -28,6 +28,7 @@ class QRcode extends Component {
 
   render() {
     const {imageUrl} = this.state;
+    const {buttonName} = this.props;
     return (
     <div className="google-auth">
       <GoogleAuthLogo />
@@ -35,7 +36,7 @@ class QRcode extends Component {
       <div className="ga__check">
         {imageUrl && <img className="ga__code" src={imageUrl} alt="qrcode" />}
         <GoogleAuthForm
-          buttonName={this.props.buttonName}
+          buttonName={buttonName}
           onSuccess={this.onSuccess}
         />
       </div>

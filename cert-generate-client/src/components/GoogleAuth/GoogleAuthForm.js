@@ -37,9 +37,9 @@ class GoogleAuthForm extends Component {
   };
 
   toggleLoading = () => {
-    this.setState({
-      isLoading: !this.props.isLoading,
-    })
+    this.setState(prevState => ({
+      isLoading: !prevState.isLoading,
+    }))
   };
 
 

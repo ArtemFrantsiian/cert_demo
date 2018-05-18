@@ -41,7 +41,8 @@ class CheckGA extends Component {
  }
 
   render() {
-    const { name } = this.props;
+    const { name, buttonName } = this.props;
+    const { isLoading } = this.state;
     return (
       <div className="google-auth">
         <GoogleAuthLogo />
@@ -49,8 +50,8 @@ class CheckGA extends Component {
 
         <div className="ga__check">
           <GoogleAuthForm
-            buttonName={this.props.buttonName}
-            isLoading={this.state.isLoading}
+            buttonName={buttonName}
+            isLoading={isLoading}
             onSuccess={this.onSuccess}
           />
         </div>
