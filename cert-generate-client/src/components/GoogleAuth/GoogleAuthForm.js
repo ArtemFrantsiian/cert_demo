@@ -46,7 +46,7 @@ class GoogleAuthForm extends Component {
   onClick = e => {
     e.preventDefault();
     this.toggleLoading();
-    const { value } = this.props;
+    const value  = this.state.value;
     if (!value) {
       this.setState({
         error: "Code must be 6 symbols and only numeric",

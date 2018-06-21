@@ -4,6 +4,7 @@ import Steps from './Steps';
 import QRcode from './QRcode';
 import CheckGA from './CheckGA';
 import GoogleAuth from './GoogleAuth';
+import KeyStore from './KeyStore';
 
 export {
   NavBar,
@@ -11,5 +12,6 @@ export {
   Steps,
   QRcode,
   CheckGA,
-  GoogleAuth
+  GoogleAuth,
+  KeyStore,
 };

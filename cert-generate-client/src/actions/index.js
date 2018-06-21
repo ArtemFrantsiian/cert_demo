@@ -1,2 +1,4 @@
 import { login, logout } from "./auth";
-export { login, logout }
+import { saveKeyStore } from "./keyStore";
+
+export { login, logout, saveKeyStore }

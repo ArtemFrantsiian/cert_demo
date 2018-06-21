@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { host, certificateUrl, google2FAUrl } from "./index";
+import { host, google2FAUrl } from "./index";
 
 const serverRequest = config => async ({ data = false, params = false } = { data: false, params: false }) => {
   try {
@@ -15,19 +15,6 @@ const serverRequest = config => async ({ data = false, params = false } = { data
   }
 };
 
-const certificate = {
-  createCertificate: serverRequest({
-    method: 'PUT',
-    url: certificateUrl,
-    // headers: defaultHeaders(authHeaders),
-  }),
-  revokeCertificate: serverRequest({
-    method: 'DELETE',
-    url: certificateUrl,
-    // headers: defaultHeaders(authHeaders),
-  }),
-};
-
 const google2FA = {
   verify2FA: serverRequest({
     method: 'POST',
@@ -36,6 +23,11 @@ const google2FA = {
 };
 
 const auth = {
+  register: serverRequest({
+    method: 'PUT',
+    url: host,
+    // headers: defaultHeaders(authHeaders),
+  }),
   logout: serverRequest({
     method: 'DELETE',
     url: host
@@ -43,7 +35,6 @@ const auth = {
 };
 
 export default {
-  ...certificate,
   ...google2FA,
   ...auth
 }

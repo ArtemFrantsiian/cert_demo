@@ -1,16 +1,19 @@
 import React, { Component } from 'react';
 import { message } from 'antd';
 import { Link } from "react-router-dom";
+import Remme from 'remme';
+import { connect } from 'react-redux';
 
-import { CreateForm, Steps, QRcode } from '../components';
+import { CreateForm, Steps, QRcode, KeyStore } from '../components';
 import { register } from '../schemes';
 import api from "../config/api";
-import {createKeys, createCSR, createLink, createP12} from "../functions";
+import { createLink, createP12} from "../functions";
+import {pki} from "node-forge";
 
 class Register extends Component {
   state = {
     step: 0,
-    csr: "",
+    certificate: "",
     passphrase: "",
     privateKey: ""
   };
@@ -33,17 +36,34 @@ class Register extends Component {
     document.body.removeChild(event.target);
   };
 
-  onRegister = values => {
+  onRegister = async (values) => {
     const { firstName, lastName, email, passphrase = "" } = values;
 
-    // create keys
-    const { publicKey, privateKey } = createKeys();
+    // create certificate
+    // USE USER PRIVATE KEY
+    // TODO: MOVE IP CONFIG 
+    const remme = new Remme.Client({
+      privateKeyHex: "3079e1126e5aa57617c5032cfc148f02686a996987ed3c27ec77f734738a46ad",
+      nodeAddress: "178.62.214.39:8080",
+      socketAddress: "178.62.214.39:9080"
+    });
 
-    // create csr
-    const csr = createCSR({ publicKey, privateKey, firstName, lastName, email });
+    //MAYBE DO SOME SPINNER FOR LOADING HERE 
+    const certificateTransactionResult = await remme.certificate.createAndStore({
+          commonName: firstName,
+          email: email,
+          name: firstName,
+          surname: lastName,
+          countryName: "US",
+          validity: 360
+        }); 
+
+    console.log(certificateTransactionResult);
+    const certificate = certificateTransactionResult.certificate;
+    const privateKey = certificate.privateKey;   
 
     this.setState({
-      csr,
+      certificate,
       passphrase,
       privateKey
     });
@@ -51,17 +71,18 @@ class Register extends Component {
   };
 
   onQRcode = async (googleSecret, userInput) => {
-    const {csr, privateKey, passphrase} = this.state;
+    const {certificate, privateKey, passphrase} = this.state;
 
     const data = {
-      csr,
+      certificate: pki.certificateToPem(certificate),
       secret: googleSecret,
       token: userInput
     };
 
-    // create certificate on the server
-    const { certificate, notValid } = await api.createCertificate({ data });
+    console.log(data);
 
+    // create certificate on the server
+    const { notValid } = await api.register({ data });
     if (notValid) {
       message.error('Your key does not correspond');
       return;
@@ -98,6 +119,8 @@ class Register extends Component {
           <Steps
             step={step}
             steps={[
+              <KeyStore/>,
+              <div>{this.props.privateKey}</div>,
               <CreateForm
                 layout={{ items: this.formItemLayout }}
                 onSubmit={this.onRegister}
@@ -122,4 +145,7 @@ class Register extends Component {
   }
 }
 
-export default Register;
+//export default Register;
+
+const mapStateToProps = (state) => ({privateKey: state.keyStore.privateKey})
+export default connect(mapStateToProps)(Register);

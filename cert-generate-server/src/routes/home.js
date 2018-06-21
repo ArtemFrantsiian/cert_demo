@@ -40,6 +40,24 @@ router.get("/", (req, res) => {
   }
 });
 
+router.put('/', async (req, res) => {
+  const { certificate, token, secret } = req.body;
+  if(!verifySecret(secret, token)){
+    res.status(400).json({ notValid: true });
+    return;
+  }
+
+  const store = await getCollection("certificates");
+      await store.insertOne({
+        certificate,
+        secret
+      });
+      res.json({
+        certificate
+      })
+});
+
+
 router.delete('/', (req, res) => {
   const { userId } = req.body;
   session.del(userId);
