@@ -7,15 +7,17 @@ import { connect } from 'react-redux';
 import { CreateForm, Steps, QRcode, KeyStore } from '../components';
 import { register } from '../schemes';
 import api from "../config/api";
+import { nodeAddress, socketAddress } from "../config";
 import { createLink, createP12 } from "../functions";
 import {pki} from "node-forge";
 
 class Register extends Component {
   state = {
     step: 0,
-    certificate: "",
+    isSpin: false,
+    certificate: {},
+    privateKey: "",
     passphrase: "",
-    privateKey: ""
   };
 
   formItemLayout = {
@@ -38,40 +40,49 @@ class Register extends Component {
 
   onRegister = async (values) => {
     const { firstName, lastName, email, passphrase = "" } = values;
-
-    // create certificate
-    // USE USER PRIVATE KEY
-    // TODO: MOVE IP CONFIG 
+    const { privateKey: privateKeyHex } = this.props;
     const remme = new Remme.Client({
-      privateKeyHex: "3079e1126e5aa57617c5032cfc148f02686a996987ed3c27ec77f734738a46ad",
-      nodeAddress: "178.62.214.39:8080",
-      socketAddress: "178.62.214.39:9080"
+      privateKeyHex,
+      nodeAddress,
+      socketAddress,
     });
 
-    //MAYBE DO SOME SPINNER FOR LOADING HERE 
+    const balance = await remme.token.getBalance();
+
+    if (balance < 10) {
+      message.error('You do not have enough tokens for creating certificate');
+      return;
+    }
+
     const certificateTransactionResult = await remme.certificate.createAndStore({
-          commonName: firstName,
-          email: email,
-          name: firstName,
-          surname: lastName,
-          countryName: "US",
-          validity: 360
-        }); 
+      commonName: firstName,
+      email: email,
+      name: firstName,
+      surname: lastName,
+      countryName: "US",
+      validity: 360
+    });
 
     console.log(certificateTransactionResult);
-    const certificate = certificateTransactionResult.certificate;
-    const privateKey = certificate.privateKey;   
+
+    const { certificate } = certificateTransactionResult;
+    const { privateKey } = certificate;
 
     this.setState({
       certificate,
+      privateKey,
       passphrase,
-      privateKey
     });
+
     this.nextStep()
   };
 
   onQRcode = async (googleSecret, userInput) => {
-    const {certificate, privateKey, passphrase} = this.state;
+    const {
+      certificate,
+      privateKey,
+      passphrase,
+    } = this.state;
 
     const data = {
       certificate: pki.certificateToPem(certificate),
@@ -81,7 +92,6 @@ class Register extends Component {
 
     console.log(data);
 
-    // create certificate on the server
     const { notValid } = await api.register({ data });
     if (notValid) {
       message.error('Your key does not correspond');
@@ -146,7 +156,8 @@ class Register extends Component {
   }
 }
 
-export default Register;
-//
-// const mapStateToProps = (state) => ({privateKey: state.keyStore.privateKey});
-// export default connect(mapStateToProps)(Register);
+const mapStateToProps = (state) => ({
+  privateKey: state.keyStore.privateKey,
+});
+
+export default connect(mapStateToProps)(Register);

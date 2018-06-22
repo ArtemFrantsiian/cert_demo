@@ -1,8 +1,9 @@
-import React, { Component, Fragment } from "react";
+import React, { Component } from "react";
 import { Upload, Button, Icon} from 'antd';
 import { connect } from 'react-redux';
+import { message } from "antd";
 
-import { saveKeyStore } from '../../actions'; 
+import { saveKeyStore } from '../../actions';
 
 class KeyStore extends Component {
   state = {
@@ -10,18 +11,18 @@ class KeyStore extends Component {
   };
 
   fileReader = ({ data, file }) => {
-    console.log(data, file);
     const reader = new FileReader();
     reader.onload = () => {
-      console.log(reader.result);
+      try {
+        const { saveKeyStore, onSubmit } = this.props;
+        const { privateKey } = JSON.parse(reader.result);
+        saveKeyStore({ privateKey });
+        onSubmit();
+      } catch (e) {
+        message.error('Your file is not a valid');
+      }
     };
     reader.readAsText(file);
-  };
-
-  toggleLoading = () => {
-    this.setState(prevState => ({
-      isLoading: !prevState.isLoading,
-    }))
   };
 
   render(){
@@ -36,5 +37,9 @@ class KeyStore extends Component {
       )
   }
 }
-const mapStateToProps = (state) => ({privateKey: state.keyStore.privateKey})
-export default connect(mapStateToProps, {saveKeyStore})(KeyStore);
+
+const mapStateToProps = (state) => ({
+  privateKey: state.keyStore.privateKey,
+});
+
+export default connect(mapStateToProps, { saveKeyStore })(KeyStore);

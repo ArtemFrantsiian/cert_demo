@@ -35,7 +35,6 @@ router.get("/", (req, res) => {
       res.redirect(`${backURL}?isOk=${isOk}&name=${cert.subject.getField('CN').value.split(" ")[0]}&userId=${userId}`);
     });
   } else {
-    console.log("isNotOk");
     res.redirect(`${backURL}?isOk=false&name=false&userId=false`);
   }
 });
@@ -48,13 +47,13 @@ router.put('/', async (req, res) => {
   }
 
   const store = await getCollection("certificates");
-      await store.insertOne({
-        certificate,
-        secret
-      });
-      res.json({
-        certificate
-      })
+  await store.insertOne({
+    certificate,
+    secret,
+  });
+  res.json({
+    certificate
+  })
 });
 
 

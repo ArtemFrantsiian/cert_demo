@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { host, google2FAUrl } from "./index";
+import {host, google2FAUrl, registerUrl} from "./index";
 
 const serverRequest = config => async ({ data = false, params = false } = { data: false, params: false }) => {
   try {
@@ -25,8 +25,7 @@ const google2FA = {
 const auth = {
   register: serverRequest({
     method: 'PUT',
-    url: host,
-    // headers: defaultHeaders(authHeaders),
+    url: registerUrl,
   }),
   logout: serverRequest({
     method: 'DELETE',
