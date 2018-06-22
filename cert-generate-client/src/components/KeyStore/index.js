@@ -9,33 +9,30 @@ class KeyStore extends Component {
     isLoading: false,
   };
 
+  fileReader = ({ data, file }) => {
+    console.log(data, file);
+    const reader = new FileReader();
+    reader.onload = () => {
+      console.log(reader.result);
+    };
+    reader.readAsText(file);
+  };
+
   toggleLoading = () => {
     this.setState(prevState => ({
       isLoading: !prevState.isLoading,
     }))
   };
 
-//   render(){
-//       return (
-//         <Upload>
-//             <Button>
-//                 <Icon type="upload" /> Upload your REMChain keystore file 
-//             </Button>
-//         </Upload>
-//       )
-//   }
-  handleClick = (e) => {
-    e.preventDefault();
-    this.props.saveKeyStore({privateKey: "asd"});
-  }
-
   render(){
-      const { privateKey } = this.props
-      return(
-            <Fragment>
-                <Button onClick={this.handleClick}>Set Priv jey</Button>
-                <p>{privateKey}</p>
-            </Fragment>          
+      return (
+        <Upload
+          customRequest={this.fileReader}
+        >
+            <Button>
+                <Icon type="upload" /> Upload your REMChain keystore file
+            </Button>
+        </Upload>
       )
   }
 }

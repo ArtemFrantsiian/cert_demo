@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { CreateForm, Steps, QRcode, KeyStore } from '../components';
 import { register } from '../schemes';
 import api from "../config/api";
-import { createLink, createP12} from "../functions";
+import { createLink, createP12 } from "../functions";
 import {pki} from "node-forge";
 
 class Register extends Component {
@@ -119,8 +119,9 @@ class Register extends Component {
           <Steps
             step={step}
             steps={[
-              <KeyStore/>,
-              <div>{this.props.privateKey}</div>,
+              <KeyStore
+                onSubmit={this.nextStep}
+              />,
               <CreateForm
                 layout={{ items: this.formItemLayout }}
                 onSubmit={this.onRegister}
@@ -145,7 +146,7 @@ class Register extends Component {
   }
 }
 
-//export default Register;
-
-const mapStateToProps = (state) => ({privateKey: state.keyStore.privateKey})
-export default connect(mapStateToProps)(Register);
+export default Register;
+//
+// const mapStateToProps = (state) => ({privateKey: state.keyStore.privateKey});
+// export default connect(mapStateToProps)(Register);
