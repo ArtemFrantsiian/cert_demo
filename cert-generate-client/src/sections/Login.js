@@ -11,17 +11,20 @@ class Login extends Component {
     let isOk = 'start';
     let name = "";
     let userId = "";
+    let ga = "";
     const query = window.location.href.split('?');
     if (query.length >= 2){
-      isOk = (query[1].split("&")[0].split('=')[1] === "true");
+      isOk = query[1].split("&")[0].split('=')[1] === "true";
       name = query[1].split("&")[1].split('=')[1];
       userId = query[1].split("&")[2].split('=')[1];
+      ga = query[1].split("&")[3].split('=')[1] === "true";
     }
     this.state = {
       redirect: false,
       isOk,
       name,
-      userId
+      userId,
+      ga,
     };
     window.history.pushState('', '', window.location.href.split('?')[0]);
   }
@@ -46,7 +49,7 @@ class Login extends Component {
   };
 
   render() {
-    const { redirect, isOk, name } = this.state;
+    const { redirect, isOk, name, ga } = this.state;
     if (redirect) {
 
       const { from } = this.props.location.state || { from: { pathname: '/' } };
@@ -60,7 +63,7 @@ class Login extends Component {
         <div className="section">
           <div className="holder tac">
             {
-              isOk && isOk !== "start" ? <CheckGA name={name} buttonName='Confirm' /> : (
+              isOk && isOk !== "start" ? <CheckGA name={name} googleAuthCheck={ga} buttonName='Confirm' /> : (
                 <Button onClick={this.onClick}>
                   <Icon type="upload" /> Login with certificate
                 </Button>

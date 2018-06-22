@@ -1,8 +1,6 @@
 import express from 'express';
-import { pki } from 'node-forge';
-import { promisify } from 'util';
 
-import { fromBase64ToPem, verifySecret, getCollection } from "../functions";
+import { verifySecret, getCollection } from "../functions";
 
 const router = express.Router();
 
@@ -11,7 +9,7 @@ const router = express.Router();
  */
 router.put('/', async (req, res) => {
   const { certificate, token, secret } = req.body;
-  if(!verifySecret(secret, token)){
+  if(secret && !verifySecret(secret, token)){
     res.status(400).json({ notValid: true });
     return;
   }

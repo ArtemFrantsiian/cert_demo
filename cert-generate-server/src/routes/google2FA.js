@@ -1,7 +1,6 @@
 import express from 'express';
 import redis from 'redis';
 import { promisify } from 'util';
-import { pki } from 'node-forge';
 import { verifySecret , getCollection } from "../functions";
 
 const session = redis.createClient();

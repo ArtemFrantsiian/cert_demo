@@ -82,7 +82,7 @@ class Register extends Component {
     });
   };
 
-  onQRcode = async (googleSecret, userInput) => {
+  onQRcode = async (googleSecret = "", userInput = "") => {
     const {
       certificate,
       privateKey,

@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import { message } from 'antd';
+import { message, Button } from 'antd';
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 import jwt from "jsonwebtoken";
 
-import { login } from "../../actions";
+import { login, setGoogleAuth } from "../../actions";
 import api from "../../config/api";
 import { secret } from "../../config";
 
@@ -18,17 +18,20 @@ class CheckGA extends Component {
 
 
  onSuccess = async (value) => {
+   const { googleAuthLogo } = this.props;
    const userId = localStorage.getItem('userId');
    const data = {
      userId,
      token: value,
    };
-   const { success } = await api.verify2FA({ data });
+   if (googleAuthLogo) {
+     const { success } = await api.verify2FA({ data });
 
-   if (!success) {
-     message.error('Your key does not correspond');
-     this.setState({ isLoading: false })
-     return;
+     if (!success) {
+       message.error('Your key does not correspond');
+       this.setState({ isLoading: false });
+       return;
+     }
    }
 
    const { name, login } = this.props;
@@ -38,23 +41,36 @@ class CheckGA extends Component {
    message.success('You logged in successfully', 1, () => {
      this.props.history.push('/');
    });
- }
+ };
 
   render() {
-    const { name, buttonName } = this.props;
+    const { name, buttonName, googleAuthCheck } = this.props;
+    console.log(googleAuthCheck);
     const { isLoading } = this.state;
     return (
       <div className="google-auth">
+
         <GoogleAuthLogo />
         {name && <div>Hi { name }!</div>}
 
-        <div className="ga__check">
-          <GoogleAuthForm
-            buttonName={buttonName}
-            isLoading={isLoading}
-            onSuccess={this.onSuccess}
-          />
-        </div>
+        {
+          googleAuthCheck ? (
+            <div className="ga__check">
+              <GoogleAuthForm
+                buttonName={buttonName}
+                isLoading={isLoading}
+                onSuccess={this.onSuccess}
+              />
+            </div>
+          ) : (
+            <Button
+              onClick={this.onSuccess}
+            >
+              Login
+            </Button>
+          )
+        }
+
       </div>
     )
   }
