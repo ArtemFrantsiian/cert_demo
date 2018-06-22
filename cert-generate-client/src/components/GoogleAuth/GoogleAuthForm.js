@@ -59,7 +59,7 @@ class GoogleAuthForm extends Component {
 
   render() {
     const { buttonName } = this.props;
-    const { value, error, isLoading } = this.state
+    const { value, error, isLoading } = this.state;
     return (
 
         <div className={cn("ga__verify", { "has-error": error })}>

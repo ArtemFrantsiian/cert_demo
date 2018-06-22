@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { message } from 'antd';
+import { message, Spin } from 'antd';
 import { Link } from "react-router-dom";
 import Remme from 'remme';
 import { connect } from 'react-redux';
@@ -9,12 +9,12 @@ import { register } from '../schemes';
 import api from "../config/api";
 import { nodeAddress, socketAddress } from "../config";
 import { createLink, createP12 } from "../functions";
-import {pki} from "node-forge";
+import { pki } from "node-forge";
 
 class Register extends Component {
   state = {
     step: 0,
-    isSpin: false,
+    creating: false,
     certificate: {},
     privateKey: "",
     passphrase: "",
@@ -38,43 +38,48 @@ class Register extends Component {
     document.body.removeChild(event.target);
   };
 
-  onRegister = async (values) => {
+  onRegister = (values) => {
     const { firstName, lastName, email, passphrase = "" } = values;
     const { privateKey: privateKeyHex } = this.props;
-    const remme = new Remme.Client({
-      privateKeyHex,
-      nodeAddress,
-      socketAddress,
-    });
-
-    const balance = await remme.token.getBalance();
-
-    if (balance < 10) {
-      message.error('You do not have enough tokens for creating certificate');
-      return;
-    }
-
-    const certificateTransactionResult = await remme.certificate.createAndStore({
-      commonName: firstName,
-      email: email,
-      name: firstName,
-      surname: lastName,
-      countryName: "US",
-      validity: 360
-    });
-
-    console.log(certificateTransactionResult);
-
-    const { certificate } = certificateTransactionResult;
-    const { privateKey } = certificate;
 
     this.setState({
-      certificate,
-      privateKey,
-      passphrase,
-    });
+      creating: true
+    }, async () => {
 
-    this.nextStep()
+      const remme = new Remme.Client({
+        privateKeyHex,
+        nodeAddress,
+        socketAddress,
+      });
+
+      const balance = await remme.token.getBalance(remme.account.publicKeyHex);
+
+      if (balance < 10) {
+        message.error('You do not have enough tokens for creating certificate');
+        return;
+      }
+
+      const certificateTransactionResult = await remme.certificate.createAndStore({
+        commonName: firstName,
+        email: email,
+        name: firstName,
+        surname: lastName,
+        countryName: "US",
+        validity: 360
+      });
+
+      const { certificate } = certificateTransactionResult;
+      const { privateKey } = certificate;
+
+      this.setState({
+        creating: false,
+        certificate,
+        privateKey,
+        passphrase,
+      });
+
+      this.nextStep()
+    });
   };
 
   onQRcode = async (googleSecret, userInput) => {
@@ -83,6 +88,8 @@ class Register extends Component {
       privateKey,
       passphrase,
     } = this.state;
+
+    console.log(certificate);
 
     const data = {
       certificate: pki.certificateToPem(certificate),
@@ -99,7 +106,7 @@ class Register extends Component {
     }
 
     // create p12 file
-    const p12 = createP12({ privateKey, certificate, passphrase });
+    const p12 = createP12({ certificate, privateKey, passphrase });
 
     // create download link for p12
     createLink({p12});
@@ -119,9 +126,8 @@ class Register extends Component {
   };
 
   render() {
-    const { step } = this.state;
+    const { step, creating } = this.state;
     const scheme = register({ compareToFirstPassPhrase: this.compareToFirstPassPhrase });
-
     return (
       <section className="section">
         <div className="holder">
@@ -132,14 +138,20 @@ class Register extends Component {
               <KeyStore
                 onSubmit={this.nextStep}
               />,
-              <CreateForm
-                layout={{ items: this.formItemLayout }}
-                onSubmit={this.onRegister}
-                scheme={scheme}
-                buttonName="Create User"
-                className="form"
-                ref={form => this.form = form}
-              />,
+              <Spin
+                spinning={creating}
+                tip={"Creating..."}
+                style={{left: 0}}
+              >
+                <CreateForm
+                  layout={{ items: this.formItemLayout }}
+                  onSubmit={this.onRegister}
+                  scheme={scheme}
+                  buttonName="Create User"
+                  className="form"
+                  ref={form => this.form = form}
+                />
+              </Spin>,
               <QRcode
                 onSubmit={this.onQRcode}
                 buttonName="Confirm"
