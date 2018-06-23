@@ -25,26 +25,25 @@ class NavBar extends Component {
     </Fragment>
   );
 
-  userLink = name => (
-    <Fragment>
-      <li className="avatar"><Avatar icon="user" /></li>
-      <li>
-        <Dropdown overlay={this.menu} trigger={['click']}>
-          <span className="name">{name}<Icon type="down" /></span>
-        </Dropdown>
-      </li>
-    </Fragment>
-  );
-
   render() {
     const { isLoggedIn, name } = this.props;
+    const userLink = (
+      <Fragment>
+        <li className="avatar"><Avatar icon="user" /></li>
+        <li>
+          <Dropdown overlay={this.menu} trigger={['click']}>
+            <span className="name">{name}<Icon type="down" /></span>
+          </Dropdown>
+        </li>
+      </Fragment>
+    );
 
     return (
       <div className="nav">
         <div className="nav__holder holder">
           <Link to="/" className="nav__logo">Site</Link>
           <ul className={cn("nav__items", { "in_center": isLoggedIn })}>
-            {isLoggedIn ? () => this.userLink(name) : this.guestLink}
+            {isLoggedIn ? userLink : this.guestLink}
           </ul>
         </div>
       </div>

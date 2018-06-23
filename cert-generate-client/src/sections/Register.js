@@ -10,6 +10,7 @@ import api from "../config/api";
 import { nodeAddress, socketAddress } from "../config";
 import { createLink, createP12 } from "../functions";
 import { pki } from "node-forge";
+import { forge } from 'remme-utils';
 
 class Register extends Component {
   state = {
@@ -38,7 +39,7 @@ class Register extends Component {
     document.body.removeChild(event.target);
   };
 
-  onRegister = (values) => {
+  onRegister = async (values) => {
     const { firstName, lastName, email, passphrase = "" } = values;
     const { privateKey: privateKeyHex } = this.props;
 
@@ -65,10 +66,12 @@ class Register extends Component {
         name: firstName,
         surname: lastName,
         countryName: "US",
-        validity: 360
+        validity: 360,
+        serial: Date.now()
       });
 
       const { certificate } = certificateTransactionResult;
+      console.log(forge.pki.certificateToPem(certificate));
       const { privateKey } = certificate;
 
       this.setState({

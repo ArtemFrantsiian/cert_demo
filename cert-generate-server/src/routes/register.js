@@ -13,12 +13,18 @@ router.put('/', async (req, res) => {
     res.status(400).json({ notValid: true });
     return;
   }
-  const store = await getCollection("certificates");
-  await store.insertOne({
-    certificate,
-    secret
-  });
-  res.status(200);
+  try {
+    const store = await getCollection("certificates");
+
+    await store.insertOne({
+      certificate,
+      secret
+    });
+    res.status(200).json({ success: true });
+  } catch (e) {
+    console.log(e);
+    res.status(500);
+  }
 });
 
 export default router;

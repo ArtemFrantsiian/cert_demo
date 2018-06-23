@@ -24,8 +24,8 @@ class QRcode extends Component {
 
   onSuccess = (value) => {
     const { secret } = this.state;
-    const { onSubmit } = this.props;
-    onSubmit(secret, value);
+    const { onSubmit, googleAuthCheck } = this.props;
+    onSubmit(googleAuthCheck ? secret: "", value);
   };
 
   render() {

@@ -13,6 +13,9 @@ class Revoke extends Component {
   revoke = async () => {
     const { userId, privateKey: privateKeyHex, logout } = this.props;
     const { certificate } = await api.getCertificate(userId);
+    console.log(certificate);
+    console.log(pki.certificateFromPem(certificate));
+
     const remme = new Remme.Client({
       privateKeyHex,
       nodeAddress,
