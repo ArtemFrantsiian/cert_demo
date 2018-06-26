@@ -25,5 +25,3 @@ export default () => (
     </App>
   </Router>
 )
-
-// <PrivateRouter exact path="/revoke" component={Revoke} />

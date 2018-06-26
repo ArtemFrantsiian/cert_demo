@@ -13,13 +13,15 @@ class Revoke extends Component {
   revoke = async () => {
     const { userId, privateKey: privateKeyHex, logout } = this.props;
     const { certificate } = await api.getCertificate(userId);
+
     const remme = new Remme.Client({
       privateKeyHex,
       nodeAddress,
       socketAddress,
     });
-    const cert = pki.certificateFromPem(certificate);
-    const revoke = await remme.certificate.revoke(cert);
+
+    await remme.certificate.revoke(pki.certificateFromPem(certificate));
+
     message.success('Your certificate was revoked successfully. You will be redirected to login page', 2, () => {
       logout();
     });

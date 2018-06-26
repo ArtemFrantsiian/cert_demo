@@ -9,7 +9,7 @@ import { register } from '../schemes';
 import api from "../config/api";
 import { nodeAddress, socketAddress } from "../config";
 import { createLink, createP12 } from "../functions";
-import { pki } from "node-forge";
+import { forge } from 'remme-utils';
 
 class Register extends Component {
   state = {

@@ -1,61 +1,45 @@
 import express from 'express';
-import { asn1, pki, util } from "node-forge";
-import request from "request";
-import moment from 'moment';
+import { pki } from "node-forge";
+import Remme from "remme";
 import redis from 'redis';
 
-import { certificateUrl } from "../config";
-import { getUserId } from "../functions";
+import { nodeAddress, socketAddress } from "../config";
+import {getCollection, getUserId} from "../functions";
 
 const router = express.Router();
 const session = redis.createClient();
 
-router.get("/", (req, res) => {
+router.get("/", async (req, res) => {
   const certificate = decodeURIComponent(req.get('X-SSL-Client-Cert'));
-  const cert = pki.certificateFromPem(certificate);
-  const backURL = req.header('Referer') || 'http://localhost/login';
-  const isOk = moment().isSameOrBefore(cert.validity.notAfter);
-  const userId = getUserId();
-  session.set(userId, certificate);
-  if (isOk) {
-    request.post(certificateUrl, {
-      body: {
-        certificate
-      },
-      json: true,
-    }, function (error, response, body) {
-      if (error || response.statusCode !== 200) {
-        res.redirect(`${backURL}?isOk=false&name=false&userId=false`);
-        return;
-      }
-      if (body.revoked) {
-        res.redirect(`${backURL}?isOk=false&name=false&userId=false`);
-        return;
-      }
-      res.redirect(`${backURL}?isOk=${isOk}&name=${cert.subject.getField('CN').value.split(" ")[0]}&userId=${userId}`);
+  if (certificate) {
+    const cert = pki.certificateFromPem(certificate);
+    console.log(certificate);
+    console.log(cert);
+    const backURL = req.header('Referer') || 'http://localhost:3000/login';
+    const remme = new Remme.Client({
+      nodeAddress,
+      socketAddress,
     });
+    let isValid = false;
+    try{
+      const check = await remme.certificate.check(cert);
+      isValid = check.valid;
+    }catch(e){
+      res.redirect(`${backURL}?isOk=false&name=false&userId=false&ga=false`);
+    }
+    const userId = getUserId();
+    session.set(userId, certificate);
+    if (isValid) {
+      const store = await getCollection("certificates");
+      const secret = await store.findOne({ certificate });
+      res.redirect(`${backURL}?isOk=true&name=${cert.subject.getField('CN').value.split(" ")[0]}&userId=${userId}&ga=${!!secret}`);
+    } else {
+      res.redirect(`${backURL}?isOk=false&name=false&userId=false&ga=false`);
+    }
   } else {
-    res.redirect(`${backURL}?isOk=false&name=false&userId=false`);
+    res.redirect(`${backURL}?isOk=false&name=false&userId=false&ga=false`);
   }
 });
-
-router.put('/', async (req, res) => {
-  const { certificate, token, secret } = req.body;
-  if(!verifySecret(secret, token)){
-    res.status(400).json({ notValid: true });
-    return;
-  }
-
-  const store = await getCollection("certificates");
-  await store.insertOne({
-    certificate,
-    secret,
-  });
-  res.json({
-    certificate
-  })
-});
-
 
 router.delete('/', (req, res) => {
   const { userId } = req.body;
