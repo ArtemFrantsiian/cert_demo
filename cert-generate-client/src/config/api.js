@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import {host, google2FAUrl, registerUrl} from "./index";
+import {host, google2FAUrl, registerUrl, certificateUrl, homeUrl } from "./index";
 
 const serverRequest = config => async ({ data = false, params = false } = { data: false, params: false }) => {
   try {
@@ -29,11 +29,19 @@ const auth = {
   }),
   logout: serverRequest({
     method: 'DELETE',
-    url: host
+    url: homeUrl,
   })
+};
+
+const certificate = {
+  getCertificate: id => (serverRequest({
+    method: 'GET',
+    url: `${certificateUrl}/${id}`
+  }))(id)
 };
 
 export default {
   ...google2FA,
-  ...auth
+  ...auth,
+  ...certificate,
 }

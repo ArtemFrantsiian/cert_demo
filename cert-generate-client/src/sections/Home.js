@@ -1,20 +1,14 @@
 import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
 
+import { Banner, TryBlock, Footer } from '../components';
+
 const Home = ({ isLoggedIn, name }) => (
-  <div className="section">
-    <div className="holder tac">
-      <div>Welcome to Home Page</div>
-      {
-        isLoggedIn ? (
-          <Fragment>
-            <div>Hi {name}</div>
-            <div>This is a private content for you</div>
-          </Fragment>
-        ) : <div>This is public content</div>
-      }
-    </div>
-  </div>
+  <Fragment>
+    <Banner name={name} />
+    <TryBlock />
+    <Footer />
+  </Fragment>
 );
 
 const mapStateToProps = (state) => {

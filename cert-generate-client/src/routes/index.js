@@ -6,8 +6,10 @@ import {
   Home,
   Register,
   Login,
+  Revoke,
   NotFound
-} from '../sections'
+} from '../sections';
+
 import PrivateRouter from './PrivateRoute';
 
 export default () => (
@@ -17,6 +19,7 @@ export default () => (
         <PrivateRouter exact path="/" component={Home} />
         <Route exact path="/register" component={Register} />
         <Route exact path="/login" component={Login} />
+        <PrivateRouter exact path="/revoke" component={Revoke} />
         <Route component={NotFound} />
       </Switch>
     </App>
