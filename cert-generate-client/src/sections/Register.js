@@ -2,14 +2,14 @@ import React, { Component } from 'react';
 import { message, Spin } from 'antd';
 import { Link } from "react-router-dom";
 import Remme from 'remme';
+import { certificateToPem } from 'remme-utils';
 import { connect } from 'react-redux';
 
 import { CreateForm, Steps, QRcode, KeyStore } from '../components';
 import { register } from '../schemes';
 import api from "../config/api";
-import { nodeAddress, socketAddress } from "../config";
+import { networkConfig } from "../config";
 import { createLink, createP12 } from "../functions";
-import { forge } from 'remme-utils';
 
 class Register extends Component {
   state = {
@@ -48,8 +48,7 @@ class Register extends Component {
 
       const remme = new Remme.Client({
         privateKeyHex,
-        nodeAddress,
-        socketAddress,
+        networkConfig,
       });
 
       const balance = await remme.token.getBalance(remme.account.publicKeyHex);
@@ -93,15 +92,11 @@ class Register extends Component {
       passphrase,
     } = this.state;
 
-    console.log(certificate);
-
     const data = {
-      certificate: pki.certificateToPem(certificate),
+      certificate: certificateToPem(certificate),
       secret: googleSecret,
       token: userInput
     };
-
-    console.log(data);
 
     const { notValid } = await api.register({ data });
     if (notValid) {

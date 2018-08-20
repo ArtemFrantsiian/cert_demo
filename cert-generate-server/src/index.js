@@ -1,6 +1,7 @@
 import express from "express";
 import bodyParser from "body-parser";
 import cors from 'cors';
+import { config } from "dotenv";
 
 import { home, register, certificate, google2FA } from "./routes";
 
@@ -9,7 +10,7 @@ const corsOptions = {
   methods: '*',
   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
-
+config();
 const app = express();
 const port = process.env.PORT || 8000;
 

@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { message } from 'antd';
-import { pki } from "node-forge";
 import Remme from "remme";
 
 import { KeyStore } from "../components";
 import { logout } from "../actions";
 import api from '../config/api';
-import { nodeAddress, socketAddress } from "../config";
+import { networkConfig } from "../config";
 
 class Revoke extends Component {
   revoke = async () => {
@@ -16,11 +15,10 @@ class Revoke extends Component {
 
     const remme = new Remme.Client({
       privateKeyHex,
-      nodeAddress,
-      socketAddress,
+      networkConfig,
     });
-
-    await remme.certificate.revoke(pki.certificateFromPem(certificate));
+    console.log(certificate);
+    await remme.certificate.revoke(certificate);
 
     message.success('Your certificate was revoked successfully. You will be redirected to login page', 2, () => {
       logout();

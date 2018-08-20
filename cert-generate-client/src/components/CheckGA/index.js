@@ -18,13 +18,14 @@ class CheckGA extends Component {
 
 
  onSuccess = async (value) => {
-   const { googleAuthLogo } = this.props;
+   const { googleAuthCheck } = this.props;
    const userId = localStorage.getItem('userId');
    const data = {
      userId,
      token: value,
    };
-   if (googleAuthLogo) {
+   console.log(googleAuthCheck);
+   if (googleAuthCheck) {
      const { success } = await api.verify2FA({ data });
 
      if (!success) {
@@ -45,7 +46,7 @@ class CheckGA extends Component {
 
   render() {
     const { name, buttonName, googleAuthCheck } = this.props;
-    console.log(googleAuthCheck);
+
     const { isLoading } = this.state;
     return (
       <div className="google-auth">
