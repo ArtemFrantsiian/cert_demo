@@ -24,7 +24,7 @@ class CheckGA extends Component {
      userId,
      token: value,
    };
-   console.log(googleAuthCheck);
+
    if (googleAuthCheck) {
      const { success } = await api.verify2FA({ data });
 

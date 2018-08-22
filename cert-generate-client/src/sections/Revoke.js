@@ -17,7 +17,7 @@ class Revoke extends Component {
       privateKeyHex,
       networkConfig,
     });
-    console.log(certificate);
+
     await remme.certificate.revoke(certificate);
 
     message.success('Your certificate was revoked successfully. You will be redirected to login page', 2, () => {
