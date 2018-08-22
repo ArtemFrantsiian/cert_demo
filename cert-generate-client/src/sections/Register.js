@@ -1,18 +1,23 @@
 import React, { Component } from 'react';
-import { message } from 'antd';
+import { message, Spin } from 'antd';
 import { Link } from "react-router-dom";
+import Remme from 'remme';
+import { certificateToPem } from 'remme-utils';
+import { connect } from 'react-redux';
 
-import { CreateForm, Steps, QRcode } from '../components';
+import { CreateForm, Steps, QRcode, KeyStore } from '../components';
 import { register } from '../schemes';
 import api from "../config/api";
-import {createKeys, createCSR, createLink, createP12} from "../functions";
+import { networkConfig } from "../config";
+import { createLink, createP12 } from "../functions";
 
 class Register extends Component {
   state = {
     step: 0,
-    csr: "",
+    creating: false,
+    certificate: {},
+    privateKey: "",
     passphrase: "",
-    privateKey: ""
   };
 
   formItemLayout = {
@@ -33,42 +38,74 @@ class Register extends Component {
     document.body.removeChild(event.target);
   };
 
-  onRegister = values => {
+  onRegister = async (values) => {
     const { firstName, lastName, email, passphrase = "" } = values;
-
-    // create keys
-    const { publicKey, privateKey } = createKeys();
-
-    // create csr
-    const csr = createCSR({ publicKey, privateKey, firstName, lastName, email });
+    const { privateKey: privateKeyHex } = this.props;
 
     this.setState({
-      csr,
-      passphrase,
-      privateKey
+      creating: true
+    }, async () => {
+
+      const remme = new Remme.Client({
+        privateKeyHex,
+        networkConfig,
+      });
+
+      const balance = await remme.token.getBalance(remme.account.publicKeyHex);
+
+      if (balance < 10) {
+        this.setState({
+          creating: false
+        });
+        message.error('You do not have enough tokens for creating certificate');
+        return;
+      }
+
+      const certificateTransactionResult = await remme.certificate.createAndStore({
+        commonName: firstName,
+        email: email,
+        name: firstName,
+        surname: lastName,
+        countryName: "US",
+        validity: 360,
+        serial: `${Date.now()}`,
+      });
+
+      const { certificate } = certificateTransactionResult;
+      const { privateKey } = certificate;
+
+      this.setState({
+        creating: false,
+        certificate,
+        privateKey,
+        passphrase,
+      });
+
+      this.nextStep()
     });
-    this.nextStep()
   };
 
-  onQRcode = async (googleSecret, userInput) => {
-    const {csr, privateKey, passphrase} = this.state;
+  onQRcode = async (googleSecret = "", userInput = "") => {
+    const {
+      certificate,
+      privateKey,
+      passphrase,
+    } = this.state;
 
     const data = {
-      csr,
+      certificate: certificateToPem(certificate),
       secret: googleSecret,
       token: userInput
     };
 
-    // create certificate on the server
-    const { certificate, notValid } = await api.createCertificate({ data });
-
+    const { notValid } = await api.register({ data });
     if (notValid) {
       message.error('Your key does not correspond');
       return;
     }
 
     // create p12 file
-    const p12 = createP12({ privateKey, certificate, passphrase });
+    const p12 = createP12({ certificate, privateKey, passphrase });
 
     // create download link for p12
     createLink({p12});
@@ -88,9 +125,8 @@ class Register extends Component {
   };
 
   render() {
-    const { step } = this.state;
+    const { step, creating } = this.state;
     const scheme = register({ compareToFirstPassPhrase: this.compareToFirstPassPhrase });
-
     return (
       <section className="section">
         <div className="holder">
@@ -98,17 +134,26 @@ class Register extends Component {
           <Steps
             step={step}
             steps={[
-              <CreateForm
-                layout={{ items: this.formItemLayout }}
-                onSubmit={this.onRegister}
-                scheme={scheme}
-                buttonName="Ok"
-                className="form"
-                ref={form => this.form = form}
+              <KeyStore
+                onSubmit={this.nextStep}
               />,
+              <Spin
+                spinning={creating}
+                tip={"Creating..."}
+                style={{left: 0}}
+              >
+                <CreateForm
+                  layout={{ items: this.formItemLayout }}
+                  onSubmit={this.onRegister}
+                  scheme={scheme}
+                  buttonName="Create User"
+                  className="form"
+                  ref={form => this.form = form}
+                />
+              </Spin>,
               <QRcode
                 onSubmit={this.onQRcode}
-                buttonName="Ok"
+                buttonName="Confirm"
               />,
               <div>
                 <div>Your certificate was registered successfully</div>
@@ -122,4 +167,8 @@ class Register extends Component {
   }
 }
 
-export default Register;
+const mapStateToProps = (state) => ({
+  privateKey: state.keyStore.privateKey,
+});
+
+export default connect(mapStateToProps)(Register);

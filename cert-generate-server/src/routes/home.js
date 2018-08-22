@@ -1,51 +1,44 @@
 import express from 'express';
-import { asn1, pki, util } from "node-forge";
-import request from "request";
-import moment from 'moment';
+import Remme from "remme";
+import { certificateFromPem } from "remme-utils";
 import redis from 'redis';
+import sha256 from "js-sha256";
 
-import { certificateUrl } from "../config";
-import { getUserId } from "../functions";
+import { nodeAddress } from "../config";
+import { getCollection, getUserId } from "../functions";
 
+const remme = new Remme.Client({
+  networkConfig: {
+    nodeAddress
+  },
+});
 const router = express.Router();
 const session = redis.createClient();
 
-router.get("/", (req, res) => {
+router.get("/", async (req, res) => {
   const certificate = decodeURIComponent(req.get('X-SSL-Client-Cert'));
-  let validFormat = true;
-  let cert = null;
-  try
-  {
-    cert = pki.certificateFromPem(certificate);
-  } catch(err)
-  {
-    console.log(err);
-    validFormat = false;
-  }
-  const backURL = req.header('Referer') || 'http://localhost/login';
-  const isOk = validFormat && cert && moment().isSameOrBefore(cert.validity.notAfter);
-  if (isOk) {
+  const cert = certificateFromPem(certificate);
+  const backURL = req.header('Referer');
+
+  if (certificate) {
+    let isValid = false;
+    try {
+      const check = await remme.certificate.check(certificate);
+      isValid = check.valid;
+    } catch (e) {
+      res.redirect(`${backURL}?isOk=false&name=false&userId=false&ga=false`);
+    }
     const userId = getUserId();
     session.set(userId, certificate);
-    request.post(certificateUrl, {
-      body: {
-        certificate
-      },
-      json: true,
-    }, function (error, response, body) {
-      if (error || response.statusCode !== 200) {
-        res.redirect(`${backURL}?isOk=false&name=false&userId=false`);
-        return;
-      }
-      if (body.revoked) {
-        res.redirect(`${backURL}?isOk=false&name=false&userId=false`);
-        return;
-      }
-      res.redirect(`${backURL}?isOk=${isOk}&name=${cert.subject.getField('CN').value.split(" ")[0]}&userId=${userId}`);
-    });
+    if (isValid) {
+      const store = await getCollection("certificates");
+      const secret = await store.findOne({ hashOfCertificate: sha256(certificate.replace(/\r?\n?/g, "")) });
+      res.redirect(`${backURL}?isOk=true&name=${cert.subject.getField('CN').value.split(" ")[0]}&userId=${userId}&ga=${!!secret}`);
+    } else {
+      res.redirect(`${backURL}?isOk=false&name=false&userId=false&ga=false`);
+    }
   } else {
-    console.log("isNotOk");
-    res.redirect(`${backURL}?isOk=false&name=false&userId=false`);
+    res.redirect(`${backURL}?isOk=false&name=false&userId=false&ga=false`);
   }
 });
 

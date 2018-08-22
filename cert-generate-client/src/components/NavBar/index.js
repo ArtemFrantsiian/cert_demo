@@ -6,58 +6,48 @@ import cn from "classnames";
 import { Avatar, Dropdown, Icon, Menu, message } from 'antd';
 
 import "./style.scss";
-import api from "../../config/api";
 import { logout } from "../../actions";
+import { Logo } from "../index";
 
 //----------------------------------------------------------------------------------------------------------------------
 
 class NavBar extends Component {
-  revoke = async e => {
-    e.preventDefault();
-    const { userId, logout } = this.props;
-    const data = {
-      userId
-    };
-    await api.revokeCertificate({ data });
-    message.success('Your certificate was revoked successfully. You will be redirected to login page', 2, () => {
-      logout();
-    });
-  };
-
   menu = (
     <Menu>
-      <Menu.Item key="1"><span onClick={this.revoke}>Revoke</span></Menu.Item>
+      <Menu.Item key="1"><Link to="/revoke">Revoke</Link></Menu.Item>
       <Menu.Item key="2"><span onClick={() => this.props.logout()}>Logout</span></Menu.Item>
     </Menu>
+  );
+
+  guestLink = (
+    <Fragment>
+      <li><Link className="link" to="/register">Register</Link></li>
+      <li><Link className="link" to="/login">Login</Link></li>
+    </Fragment>
+  );
+
+  userLink = name => (
+    <Fragment>
+      <li className="avatar"><Avatar icon="user" /></li>
+      <li>
+        <Dropdown overlay={this.menu} trigger={['click']}>
+          <span className="name">{name}<Icon type="down" /></span>
+        </Dropdown>
+      </li>
+    </Fragment>
   );
 
   render() {
     const { isLoggedIn, name } = this.props;
 
-    const guestLink = (
-      <Fragment>
-        <li><Link className="link" to="/register">Register</Link></li>
-        <li><Link className="link" to="/login">Login</Link></li>
-      </Fragment>
-    );
-
-    const userLink = (
-      <Fragment>
-        <li className="avatar"><Avatar icon="user" /></li>
-        <li>
-          <Dropdown overlay={this.menu} trigger={['click']}>
-            <span className="name">{name}<Icon type="down" /></span>
-          </Dropdown>
-        </li>
-      </Fragment>
-    );
-
     return (
       <div className="nav">
         <div className="nav__holder holder">
-          <Link to="/" className="nav__logo">Site</Link>
+          <Link to="/" className="nav__logo">
+            <Logo />
+          </Link>
           <ul className={cn("nav__items", { "in_center": isLoggedIn })}>
-            {isLoggedIn ? userLink : guestLink}
+            {isLoggedIn ? this.userLink(name) : this.guestLink}
           </ul>
         </div>
       </div>

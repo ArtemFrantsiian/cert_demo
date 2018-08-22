@@ -1,18 +1,25 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Button, message } from 'antd';
+import { message } from 'antd';
+import Remme from "remme";
 
+import { KeyStore } from "../components";
 import { logout } from "../actions";
 import api from '../config/api';
+import { networkConfig } from "../config";
 
 class Revoke extends Component {
-  revoke = async e => {
-    e.preventDefault();
-    const { userId, logout } = this.props;
-    const data = {
-      userId
-    };
-    await api.revokeCertificate({ data });
+  revoke = async () => {
+    const { userId, privateKey: privateKeyHex, logout } = this.props;
+    const { certificate } = await api.getCertificate(userId);
+
+    const remme = new Remme.Client({
+      privateKeyHex,
+      networkConfig,
+    });
+
+    await remme.certificate.revoke(certificate);
+
     message.success('Your certificate was revoked successfully. You will be redirected to login page', 2, () => {
       logout();
     });
@@ -25,7 +32,9 @@ class Revoke extends Component {
           <span>Welcome to Revoke Page</span>
           <br />
           <br />
-          <Button onClick={this.revoke}>Revoke certificate</Button>
+          <KeyStore
+            onSubmit={this.revoke}
+          />
         </div>
       </div>
     )
@@ -33,7 +42,8 @@ class Revoke extends Component {
 }
 
 const mapStateToProps = state => ({
-  userId: state.auth.userId
+  userId: state.auth.userId,
+  privateKey: state.keyStore.privateKey,
 });
 
 export default connect(mapStateToProps, { logout })(Revoke);

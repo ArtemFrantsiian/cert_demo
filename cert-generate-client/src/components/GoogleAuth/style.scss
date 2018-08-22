@@ -1,0 +1,23 @@
+.ga__check {
+  display: flex;
+  max-width: 50%;
+  margin: 0 auto;
+  -ms-flex-align: center;
+  align-items: center;
+}
+.ga__code {
+  margin-right: 20px;
+}
+.ga__verify {
+  width: 70%;
+  height: auto;
+  margin: 0px auto 0;
+}
+
+.ga__verify button {
+  margin-top: 8px;
+}
+
+.ga__input {
+  margin: 15px 0 10px;
+}

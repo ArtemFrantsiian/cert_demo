@@ -1,19 +1,16 @@
-import React, { Component } from "react";
-import { Input, Button } from 'antd';
+import React, {Component, Fragment} from "react";
 import QRCode from 'qrcode';
 import speakeasy from 'speakeasy';
-import cn from "classnames";
+import { connect } from "react-redux";
+import { Checkbox, Button } from "antd";
 
-import './style.scss';
-import { GoogleAuthLogo } from '../index';
+import { GoogleAuthForm, GoogleAuthLogo } from '../GoogleAuth';
+import { setGoogleAuth } from "../../actions";
 
 class QRcode extends Component {
   state = {
-    imageUrl: "",
-    secret: "",
-    value: "",
-    error: "",
-    isLoading: false
+   imageUrl: "",
+   secret: ""
   };
 
   async componentDidMount() {
@@ -25,80 +22,44 @@ class QRcode extends Component {
     })
   }
 
-  toggleLoading = () => {
-    this.setState(prevState => ({
-      isLoading: !prevState.isLoading,
-    }))
-  };
-
-  validQrCode = {
-    length: 6,
-    pattern: /^[0-9]*$/
-  };
-
-  onChange = e => {
-    const { value } = e.target;
-    if (value && (!new RegExp(this.validQrCode.pattern).test(value) || value.length !== this.validQrCode.length)) {
-      this.setState({
-        error: "Code must be 6 symbols and only numeric",
-        isLoading: true,
-        value,
-      });
-    } else {
-      this.setState({
-        error: "",
-        isLoading: false,
-        value,
-      })
-    }
-  };
-
-  onClick = e => {
-    e.preventDefault();
-    this.toggleLoading();
-    const { secret, value } = this.state;
-    if (!value) {
-      this.setState({
-        error: "Code must be 6 symbols and only numeric",
-      });
-      return;
-    }
-    const { onSubmit } = this.props;
-    onSubmit(secret, value);
-    this.toggleLoading();
+  onSuccess = (value) => {
+    const { secret } = this.state;
+    const { onSubmit, googleAuthCheck } = this.props;
+    onSubmit(googleAuthCheck ? secret: "", value);
   };
 
   render() {
-    const { buttonName } = this.props;
-    const { imageUrl, value, isLoading, error } = this.state;
+    const { imageUrl } = this.state;
+    const { buttonName, googleAuthCheck, setGoogleAuth } = this.props;
     return (
-      <div className="qr">
-        <GoogleAuthLogo />
-        <div className="qr__check">
-          {imageUrl && <img className="qr__code" src={imageUrl} alt="qrcode" />}
-          <div className={cn("qr__verify", { "has-error": error })}>
-            <div className="qr__label">QR code</div>
-            <Input
-              className="qr__input"
-              value={value}
-              onChange={this.onChange}
-              onKeyPress={e => e.key === "Enter" ? this.onClick(e) : null}
-            />
-            {error && <div className="ant-form-explain">{error}</div>}
-          </div>
-        </div>
-        <Button
-          type="primary"
-          onClick={this.onClick}
-          className="qr__button"
-          loading={isLoading && !error}
-          disabled={isLoading}
-        >
-          { buttonName }
-        </Button>
-      </div>
+    <div className="google-auth">
+      <GoogleAuthLogo />
+      <Checkbox
+        checked={googleAuthCheck}
+        onChange={() => setGoogleAuth({ check: !googleAuthCheck })}
+      >Ask 2 FA</Checkbox>
+      {
+        googleAuthCheck ? (
+          <Fragment>
+            <div className="ga__check">
+              {imageUrl && <img className="ga__code" src={imageUrl} alt="qrcode" />}
+              <GoogleAuthForm
+                buttonName={buttonName}
+                onSuccess={this.onSuccess}
+              />
+            </div>
+          </Fragment>
+        ) : (
+          <Button
+            onClick={this.onSuccess}
+          >Skip 2 FA</Button>
+        )
+      }
+    </div>
     )
   }
 }
-//{components["String"]({ value, onChange: this.onChange })}
-export default QRcode;
+
+export default connect((state) => ({
+  googleAuthCheck: state.googleAuth.check
+}), { setGoogleAuth })(QRcode);

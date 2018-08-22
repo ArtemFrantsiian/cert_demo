@@ -1,36 +1,5 @@
 import {asn1, pkcs12, pki, rsa, util} from "node-forge";
 
-export const createKeys = () => rsa.generateKeyPair(1024);
-
-export const createCSR = ({ publicKey, privateKey, firstName, lastName, email }) => {
-  const csr = pki.createCertificationRequest();
-  csr.publicKey = publicKey;
-  csr.setSubject([{
-    name: 'commonName',
-    value: `${firstName} ${lastName}`
-  }, {
-    name: 'countryName',
-    value: 'UA'
-  }, {
-    shortName: 'ST',
-    value: 'KIEV'
-  }, {
-    name: 'localityName',
-    value: 'Kiev'
-  }, {
-    name: 'organizationName',
-    value: 'REMME'
-  }, {
-    shortName: 'OU',
-    value: 'Devops'
-  }, {
-    shortName: 'E',
-    value: email
-  }]);
-  csr.sign(privateKey);
-  return pki.certificationRequestToPem(csr)
-};
-
 export const createP12 = ({ privateKey, certificate, passphrase }) => {
   const newPkcs12Asn1 = pkcs12.toPkcs12Asn1(
     privateKey, [certificate], passphrase,

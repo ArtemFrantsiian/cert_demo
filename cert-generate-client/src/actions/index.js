@@ -1,2 +1,5 @@
 import { login, logout } from "./auth";
-export { login, logout }
+import { saveKeyStore } from "./keyStore";
+import { setGoogleAuth } from "./googleAuth";
+
+export { login, logout, saveKeyStore, setGoogleAuth }
