@@ -2,4 +2,4 @@ cert-generate-client/node_modules
 cert-generate-server/node_modules
 cert-generate-client/.idea
 cert-generate-server/.idea
-.idea
+./.idea

@@ -1,0 +1,14 @@
+version: '3.4'
+
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    env_file: ./config/network-config.env
+    network_mode: bridge
+    volumes:
+     - ./nginx.conf:/etc/nginx/nginx.conf:ro
+     - ./certificates:/etc/nginx/certificates:ro
+     - ./cert-generate-client/build:/root/build
+    ports:
+     - 80:80

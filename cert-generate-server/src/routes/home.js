@@ -32,7 +32,7 @@ router.get("/", async (req, res) => {
     session.set(userId, certificate);
     if (isValid) {
       const store = await getCollection("certificates");
-      const secret = await store.findOne({ hashOfCertificate: sha256(certificate.replace(/\r?\n?/g, "")) });
+      const { secret } = await store.findOne({ hashOfCertificate: sha256(certificate.replace(/\r?\n?/g, "")) });
       res.redirect(`${backURL}?isOk=true&name=${cert.subject.getField('CN').value.split(" ")[0]}&userId=${userId}&ga=${!!secret}`);
     } else {
       res.redirect(`${backURL}?isOk=false&name=false&userId=false&ga=false`);
